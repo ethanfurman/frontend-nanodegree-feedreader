@@ -69,9 +69,9 @@ $(function() {
           */
         it('(un)hides when clicked', function() {
             menu.trigger('click');
-            expect(body.hasClass('menu-hidden')).toBe(false);
+            expect(body.hasClass('menu-hidden')).toBeFalsy();
             menu.trigger('click');
-            expect(body.hasClass('menu-hidden')).toBe(true);
+            expect(body.hasClass('menu-hidden')).toBeTruthy();
         });
 
     });
@@ -80,10 +80,8 @@ $(function() {
     describe('Initial Entries', function() {
 
         beforeEach(function(done) {
-            // simple wait while the feed populates
-            setTimeout(function() {
-                done();
-            }, 1000);
+            // wait while we load the initial feed (again)
+            loadFeed(2, done);
         });
 
         /* Test that ensures when the loadFeed function is called and
@@ -91,22 +89,31 @@ $(function() {
          * within the .feed container.
          */
         it('has at least one entry', function() {
-            expect($('.entry-link').length).not.toBe(0);
+            expect($('.entry').length).toBeGreaterThan(0);
         });
     });
 
     /* Test suite for "New Feed Selection" */
     describe('New Feed Selection', function() {
 
+        var firstFeed;
+
         beforeEach(function(done) {
-            loadFeed(2, done);
+            loadFeed(1, function() {
+                firstFeed = $('.entry');
+                done();
+            });
         });
 
         /* Test that ensures when a new feed is loaded by the loadFeed
          * function that the content actually changes.
          */
-        it('loads new feeds', function() {
-            expect($('.entry-link').length).not.toBe(0);
+        it('loads new feeds', function(done) {
+            loadFeed(2, function() {
+                var secondFeed = $('.entry');
+                expect(firstFeed[0].innerHTML).not.toEqual(secondFeed[0].innerHTML);
+                done();
+            });
         });
     });
 }());
